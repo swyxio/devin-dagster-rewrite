@@ -1,4 +1,12 @@
-from dagster import job, op
+from dagster import job, op, resource, Field, String
+import subprocess
+
+# Define a resource that mimics the Airflow ExampleHook
+@resource(config_schema={"conn_message": Field(String, is_required=False, default_value="I got your connection")})
+def example_hook_resource(context):
+    def get_conn():
+        context.log.info(context.resource_config["conn_message"])
+    return get_conn
 
 @op(config_schema={"message": str})
 def custom_message_op(context):
@@ -14,23 +22,27 @@ def dummy_op(context):
 @op
 def bash_date_op(context):
     context.log.info("Executing bash command: date")
-    # Here you would include the logic to execute the 'date' command
-    return "Executed date command"
+    result = subprocess.run(["date"], capture_output=True, text=True)
+    date_output = result.stdout.strip()
+    context.log.info(f"Date command output: {date_output}")
+    return date_output
 
 @op
 def bash_sleep_op(context):
     context.log.info("Executing bash command: sleep 5")
-    # Here you would include the logic to execute the 'sleep 5' command
+    subprocess.run(["sleep", "5"])
     return "Executed sleep command"
 
 @op(config_schema={"my_param": str})
 def bash_custom_op(context):
     my_param = context.op_config["my_param"]
     context.log.info(f"Executing custom bash command with param: {my_param}")
-    # Here you would include the logic to execute the custom command with Jinja templating
-    return f"Executed custom command with param: {my_param}"
+    result = subprocess.run(my_param, shell=True, capture_output=True, text=True)
+    custom_command_output = result.stdout.strip()
+    context.log.info(f"Custom command output: {custom_command_output}")
+    return custom_command_output
 
-@job
+@job(resource_defs={"example_hook": example_hook_resource})
 def custom_operator_job():
     custom_message_op()
 
@@ -40,7 +52,6 @@ def example_job():
 
 @job
 def tutorial_job():
-    # Define the execution logic of the tutorial job
     date_result = bash_date_op()
     sleep_result = bash_sleep_op()
     custom_result = bash_custom_op()
@@ -58,6 +69,13 @@ if __name__ == "__main__":
                     "message": "Here is the message!"
                 }
             }
+        },
+        "resources": {
+            "example_hook": {
+                "config": {
+                    "conn_message": "Custom connection message"
+                }
+            }
         }
     })
 
@@ -67,7 +85,7 @@ if __name__ == "__main__":
         "ops": {
             "bash_custom_op": {
                 "config": {
-                    "my_param": "Parameter I passed in"
+                    "my_param": "echo Parameter I passed in"
                 }
             }
         }

@@ -1,35 +1,64 @@
 # Migration from Airflow to Dagster
 
-This repository contains the result of migrating an Airflow project to Dagster, utilizing Dagster's latest APIs and features for data orchestration and pipeline management. The original Airflow project can be found at [soggycactus/airflow-repo-template](https://github.com/soggycactus/airflow-repo-template).
+This repository documents the process of migrating an Airflow project to Dagster, using Dagster's latest APIs for data orchestration and pipeline management. The original Airflow project is located at [soggycactus/airflow-repo-template](https://github.com/soggycactus/airflow-repo-template).
 
-## Why Dagster?
+## Overview
 
-Dagster offers a modern approach to data pipeline orchestration, with an emphasis on development productivity, operational robustness, and observability. This migration aims to leverage Dagster's advantages, such as its strong typing system, flexible execution, and powerful tooling.
+The migration involves translating Airflow DAGs and custom operators into Dagster jobs and resources, ensuring that the original project's functionality is maintained in the Dagster implementation.
 
-## Getting Started with Dagster
+## Prerequisites
 
-To get started with the migrated project:
+- Python 3.7+
+- Dagster and Dagit
 
-1. Ensure you have Dagster and Dagit installed. You can install them using pip:
+## Installation
 
-   ```
-   pip install dagster dagit
-   ```
+Install Dagster and Dagit using pip:
 
-2. The Airflow DAGs have been translated into Dagster jobs and can be found in the `dagster_solids.py` file.
+```bash
+pip install dagster dagit
+```
 
-3. To run a Dagster job, execute:
+## Running Dagster Jobs
 
-   ```
-   dagit -f dagster_solids.py
-   ```
+The Airflow DAGs have been translated into the following Dagster jobs:
 
-   This will open the Dagit UI where you can execute and monitor your jobs.
+- `custom_operator_job`: Mimics the Airflow custom operator functionality.
+- `example_job`: Equivalent to the Airflow example DAG.
+- `tutorial_job`: Translates the Airflow tutorial DAG.
+
+To execute a Dagster job, run the corresponding Python script:
+
+```bash
+python3 execute_custom_operator_job.py
+python3 execute_example_job.py
+python3 execute_tutorial_job.py
+```
+
+Each script is configured to execute its respective job in the Dagster environment.
+
+## Dagit Interface
+
+To visualize and interact with the Dagster jobs, use the Dagit UI:
+
+```bash
+dagit -f dagster_solids.py
+```
+
+This command will start the Dagit web server, allowing you to execute and monitor jobs through a web interface.
+
+## Resources
+
+The `dagster_solids.py` file includes a resource `example_hook_resource` that replicates the functionality of the Airflow `ExampleHook`.
+
+## Documentation
+
+For detailed information on the migration process and how to work with the new Dagster setup, refer to the [Dagster documentation](https://docs.dagster.io/).
 
 ## Contributing
 
-Contributions to this project are welcome. Please refer to the original Airflow project for guidelines on contributing to the DAGs and operators.
+Contributions are welcome. Please follow the guidelines provided in the original Airflow project repository.
 
-## Further Documentation
+## License
 
-For more information on working with Dagster, visit the [Dagster documentation](https://docs.dagster.io/).
+This project is licensed under the terms of the MIT license.
